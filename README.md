@@ -1,15 +1,18 @@
 # Travlr Getaways
 
-A travel booking app that currently books exactly zero trips. The CI pipeline has already packed.
+```yaml
+STATUS  : ACTIVE
+AUTHOR  : Bradley D. Saucier
+COURSE  : SNHU CS-465 Full Stack Development
+```
 
-Module One establishes the Node.js and Express foundation. MongoDB, Handlebars, Angular, authentication, and actual vacations board in later modules.
+> [!IMPORTANT]
+> **BOTTOM LINE UP FRONT**
+>
+> A travel booking app that currently books exactly zero trips. The CI pipeline has already packed.
+>
 
-## Run
-
-    npm ci
-    npm start
-
-Open http://localhost:3000. For development, use npm run dev.
+[![CI - It Worked on My Machine Is Not Evidence](https://github.com/bradsaucier/mean-time-to-vacation/actions/workflows/ci.yml/badge.svg)](https://github.com/bradsaucier/mean-time-to-vacation/actions/workflows/ci.yml)
 
 ## Verify
 

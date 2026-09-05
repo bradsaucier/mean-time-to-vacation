@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Start planning an island escape with Travlr Getaways." />
+    <title>Contact | Travlr Getaways</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="icon" href="images/logo.png" type="image/png" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <div class="site-shell">
+      <header class="site-header">
+        <a class="brand" href="index.html" aria-label="Travlr Getaways home">
+          <img src="images/logo.png" alt="Travlr Getaways" width="200" height="100" />
+        </a>
+        <nav class="primary-nav" aria-label="Primary navigation">
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="travel.html">Travel</a></li>
+            <li><a href="rooms.html">Rooms</a></li>
+            <li><a href="meals.html">Meals</a></li>
+            <li><a href="news.html">News</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="contact.html" aria-current="page">Contact</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <main id="main-content">
+        <header class="page-intro">
+          <p class="eyebrow">Contact</p>
+          <h1>Tell us what a good getaway feels like.</h1>
+          <p>
+            Share your dates, group size, and priorities. This Module One form demonstrates the
+            customer-facing interface and does not transmit information yet.
+          </p>
+        </header>
+
+        <div class="contact-layout">
+          <form class="contact-form" action="contact.html" method="get">
+            <div class="field-pair">
+              <div class="field">
+                <label for="name">Name</label>
+                <input id="name" name="name" type="text" autocomplete="name" required />
+              </div>
+              <div class="field">
+                <label for="email">Email</label>
+                <input id="email" name="email" type="email" autocomplete="email" required />
+              </div>
+            </div>
+            <div class="field">
+              <label for="subject">What are you planning?</label>
+              <select id="subject" name="subject">
+                <option value="general">A complete getaway</option>
+                <option value="travel">Reef and island experiences</option>
+                <option value="rooms">Rooms and availability</option>
+                <option value="meals">Dining needs</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="message">Trip notes</label>
+              <textarea
+                id="message"
+                name="message"
+                rows="7"
+                placeholder="Dates, travelers, pace, and anything else we should know"
+                required
+              ></textarea>
+            </div>
+            <button class="button" type="submit">Send trip notes</button>
+            <p class="form-note">
+              Demonstration form only. No information is stored or transmitted.
+            </p>
+          </form>
+
+          <aside class="contact-card">
+            <p class="eyebrow">Travlr Getaways</p>
+            <h2>Start with a conversation.</h2>
+            <p>Our planning desk is available Monday through Friday, 9:00 AM to 5:00 PM.</p>
+            <dl>
+              <div>
+                <dt>Phone</dt>
+                <dd><a href="tel:+18008728571">1-800-TRAVLR-1</a></dd>
+              </div>
+              <div>
+                <dt>Email</dt>
+                <dd><a href="mailto:hello@travlr.example">hello@travlr.example</a></dd>
+              </div>
+              <div>
+                <dt>Planning</dt>
+                <dd>Virtual appointments available</dd>
+              </div>
+            </dl>
+          </aside>
+        </div>
+      </main>
+
+      <footer class="site-footer">
+        <p><strong>Travlr Getaways</strong><br />Find your way back to the water.</p>
+        <nav aria-label="Footer navigation">
+          <a href="travel.html">Travel</a><a href="rooms.html">Rooms</a>
+          <a href="meals.html">Meals</a><a href="contact.html">Contact</a>
+        </nav>
+        <p class="copyright">Copyright 2026 Travlr Getaways. All rights reserved.</p>
+      </footer>
+    </div>
+  </body>
+</html>

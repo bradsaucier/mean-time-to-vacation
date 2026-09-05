@@ -5,7 +5,7 @@ const globals = require("globals");
 
 module.exports = [
   {
-    ignores: ["coverage/", "node_modules/"],
+    ignores: ["coverage/", "node_modules/", "output/", "tmp/"],
   },
   eslint.configs.recommended,
   {

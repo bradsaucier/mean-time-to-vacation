@@ -84,3 +84,102 @@ test("unknown browser routes return a rendered 404 page", async () => {
 
   assert.match(response.text, /Not Found/);
 });
+
+function assertDocument(html) {
+  for (const element of ["html", "head", "body"]) {
+    assert.equal((html.match(new RegExp("<" + element + "(?:\\s|>)", "g")) || []).length, 1);
+    assert.equal((html.match(new RegExp("</" + element + ">", "g")) || []).length, 1);
+  }
+  assert.match(html, /^<!doctype html>/i);
+  assert.doesNotMatch(html, /\{\{/);
+}
+
+test("both Travel URLs render one complete document with partials and controller metadata", async () => {
+  for (const url of ["/travel", "/travel/"]) {
+    const response = await request(app).get(url).expect(200).expect("Content-Type", /html/);
+    assertDocument(response.text);
+    assert.match(response.text, /<title>Travel \| Travlr Getaways<\/title>/);
+    for (const reef of ["Gale Reef", "Dawson's Reef", "Claire's Reef"]) {
+      assert.ok(response.text.includes(reef));
+    }
+    assert.equal((response.text.match(/class="site-header"/g) || []).length, 1);
+    assert.equal((response.text.match(/class="site-footer"/g) || []).length, 1);
+    assert.equal((response.text.match(/aria-current="page"/g) || []).length, 1);
+    assert.match(response.text, /href="\/travel"\s+aria-current="page"/);
+  }
+});
+
+test("Travel view interpolates and escapes supplied data and honors its navigation flag", async () => {
+  const html = await new Promise((resolve, reject) => {
+    app.render(
+      "travel",
+      {
+        title: "<script>test</script>",
+        description: "A & B",
+        isTravel: false,
+        layout: false,
+      },
+      (error, output) => (error ? reject(error) : resolve(output)),
+    );
+  });
+  assertDocument(html);
+  assert.match(html, /<title>&lt;script&gt;test&lt;\/script&gt;<\/title>/);
+  assert.match(html, /content="A &amp; B"/);
+  assert.doesNotMatch(html, /aria-current="page"/);
+});
+
+test("every local link and asset in rendered Travel resolves at either URL", async () => {
+  for (const url of ["/travel", "/travel/"]) {
+    const response = await request(app).get(url).expect(200);
+    const references = new Set(
+      [...response.text.matchAll(/(?:href|src)="([^"]+)"/g)].map((match) => match[1]),
+    );
+    for (const reference of references) {
+      if (reference.startsWith("#")) {
+        assert.ok(response.text.includes('id="' + reference.slice(1) + '"'));
+        continue;
+      }
+      assert.ok(reference.startsWith("/"), reference + " must be root-relative");
+      const resolved = new URL(reference, "http://localhost" + url);
+      await request(app).get(resolved.pathname).expect(200);
+    }
+  }
+});
+
+test("all static customer pages link to the rendered Travel route", () => {
+  for (const page of pages) {
+    const html = fs.readFileSync(path.join(publicDirectory, page), "utf8");
+    assert.match(html, /href="\/travel"/);
+    assert.doesNotMatch(html, /href="travel\.html"/);
+  }
+});
+
+test("main router delegates to its controller and uses the relocated layout", async () => {
+  const express = require("express");
+  const fallback = express();
+  fallback.set("views", app.get("views"));
+  fallback.set("view engine", "hbs");
+  fallback.set("view options", app.get("view options"));
+  fallback.use("/", require("../app_server/routes/index"));
+  const response = await request(fallback).get("/").expect(200);
+  assertDocument(response.text);
+  assert.match(response.text, /Express fallback view/);
+  assert.match(response.text, /href="\/css\/style.css"/);
+});
+
+test("error views retain their document layout and status in production", async () => {
+  const previous = app.get("env");
+  app.set("env", "production");
+  try {
+    const response = await request(app).get("/lost-luggage").set("Accept", "text/html").expect(404);
+    assertDocument(response.text);
+    assert.match(response.text, /Status code: 404/);
+    assert.match(response.text, /href="\/css\/style.css"/);
+  } finally {
+    app.set("env", previous);
+  }
+  await request(app).get("/travel/travel").expect(404);
+  await request(app).get("/users").expect(501);
+  const response = await request(app).get("/missing").set("Accept", "application/json").expect(404);
+  assert.deepEqual(response.body, { error: "Not Found" });
+});

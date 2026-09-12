@@ -1,3 +1,6 @@
 coverage
 node_modules
 package-lock.json
+
+# Prettier's Glimmer parser does not support hbs partials or attribute blocks.
+**/*.hbs

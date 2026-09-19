@@ -15,52 +15,40 @@
 
       <main id="main-content">
         <header class="page-intro">
-          <p class="eyebrow">Travel</p>
+          <p class="eyebrow">Travel / The reef fieldbook</p>
           <h1>Meet the island below the surface.</h1>
           <p>
-            Every reef has its own rhythm. Start shallow, drift along a wall, or follow a local
-            guide into clear blue water.
+            Every reef has its own rhythm. Find the experience that fits your curiosity,
+            then take a closer look with a field note for the water.
           </p>
         </header>
 
-        <section class="listing-grid" aria-label="Reef experiences">
-          <article class="listing-card">
-            <img src="/images/reef1.jpg" alt="Coral formations at Gale Reef" />
+        <ul class="listing-grid reef-fieldbook" aria-label="Reef experiences">
+          {{#each trips}}
+          <li class="listing-card">
+            <img src="/images/{{this.image}}" alt="{{this.imageAlt}}" width="398" height="287" />
             <div>
-              <p class="eyebrow">Easygoing introduction</p>
-              <h2>Gale Reef</h2>
-              <p>
-                A bright, sheltered site with gentle conditions and long sightlines. Gale Reef is a
-                comfortable first look at the island's coral gardens.
-              </p>
-              <p class="detail-line">Best for: new divers and relaxed snorkel sessions</p>
+              <p class="eyebrow">{{this.eyebrow}}</p>
+              <h2>{{this.name}}</h2>
+              <p class="trip-description">{{this.description}}</p>
+              <dl class="reef-profile">
+                <div><dt>Experience</dt><dd>{{this.level}}</dd></div>
+                <div><dt>Water profile</dt><dd>{{this.water}}</dd></div>
+              </dl>
+              <p class="detail-line">Best for: {{this.bestFor}}</p>
+              <aside class="field-note" aria-label="Field note">
+                <p class="field-note-label">A closer look</p>
+                <p>{{this.fieldNote}}</p>
+              </aside>
             </div>
-          </article>
-          <article class="listing-card">
-            <img src="/images/reef2.jpg" alt="A school of fish crossing Dawson's Reef" />
-            <div>
-              <p class="eyebrow">Color in motion</p>
-              <h2>Dawson's Reef</h2>
-              <p>
-                Follow the current past sea fans and small schools of reef fish. Dawson's rewards a
-                patient pace and a sharp eye.
-              </p>
-              <p class="detail-line">Best for: confident swimmers and underwater photography</p>
-            </div>
-          </article>
-          <article class="listing-card">
-            <img src="/images/reef3.jpg" alt="Deep blue water at Claire's Reef" />
-            <div>
-              <p class="eyebrow">The deeper horizon</p>
-              <h2>Claire's Reef</h2>
-              <p>
-                A dramatic outer-reef profile with cooler water and a sweeping blue backdrop. Local
-                guides tailor the route to conditions each morning.
-              </p>
-              <p class="detail-line">Best for: experienced divers with a guide</p>
-            </div>
-          </article>
-        </section>
+          </li>
+          {{else}}
+          <li class="empty-trips">
+            <h2>A new reef story is on its way.</h2>
+            <p>No trips are currently available. Ask a trip specialist about future experiences.</p>
+          </li>
+          {{/each}}
+        </ul>
 
         <aside class="callout">
           <div>

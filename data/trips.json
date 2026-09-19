@@ -1,0 +1,35 @@
+[
+  {
+    "name": "Gale Reef",
+    "image": "reef1.jpg",
+    "imageAlt": "A diver beside a wall of colorful coral",
+    "eyebrow": "Easygoing introduction",
+    "description": "Gale Reef invites you to slow down and notice the small things. Explore a sheltered coral garden, where a patient pause reveals more than a hurried lap.",
+    "bestFor": "First reef visits and unhurried observation",
+    "level": "Introductory",
+    "water": "Sheltered coral garden",
+    "fieldNote": "Choose one patch of reef and watch how its smallest residents move through the coral."
+  },
+  {
+    "name": "Dawson's Reef",
+    "image": "reef2.jpg",
+    "imageAlt": "A diver and small reef fish above colorful coral",
+    "eyebrow": "Color in motion",
+    "description": "Dawson's Reef turns a day in the water into a study of movement. Follow the reef's changing contours and look for the brief patterns that appear as fish cross the blue.",
+    "bestFor": "Underwater photography and watching reef life",
+    "level": "Intermediate",
+    "water": "Open reef edge",
+    "fieldNote": "Frame the reef first, then wait for a passing fish to become part of the picture."
+  },
+  {
+    "name": "Claire's Reef",
+    "image": "reef3.jpg",
+    "imageAlt": "Pale and orange coral beneath clear blue water",
+    "eyebrow": "The deeper horizon",
+    "description": "Claire's Reef offers a wider perspective on the island below the surface. Trace the contrast between intricate coral forms and the open blue beyond the reef.",
+    "bestFor": "Experienced divers exploring with a guide",
+    "level": "Experienced",
+    "water": "Outer reef profile",
+    "fieldNote": "Look for the reef's silhouette against the blue before focusing on its finer details."
+  }
+]

@@ -478,6 +478,69 @@ main {
   border-radius: var(--radius-medium);
 }
 
+.reef-fieldbook {
+  margin: 0;
+  list-style: none;
+}
+
+.reef-fieldbook .eyebrow {
+  color: var(--lagoon-dark);
+}
+
+.trip-description {
+  color: var(--ink-soft);
+}
+
+.empty-trips {
+  padding: clamp(2rem, 5vw, 4rem);
+  color: var(--ink-soft);
+  background: var(--sand);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-medium);
+}
+
+.empty-trips h2 {
+  color: var(--ink);
+}
+
+.reef-profile {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2rem;
+  margin: 1.5rem 0 0;
+}
+
+.reef-profile dt,
+.field-note-label {
+  color: var(--lagoon-dark);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.reef-profile dd {
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+}
+
+.field-note {
+  margin-top: 1.5rem;
+  padding: 1rem 1.2rem;
+  background: var(--sand-light);
+  border-left: 3px solid var(--lagoon);
+}
+
+.field-note p {
+  margin-bottom: 0;
+}
+
+.field-note p:last-child {
+  margin-top: 0.4rem;
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+}
+
 .listing-card:nth-child(even) {
   grid-template-columns: 1.2fr minmax(280px, 0.8fr);
 }

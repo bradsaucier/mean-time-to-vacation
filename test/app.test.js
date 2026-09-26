@@ -10,6 +10,27 @@ const { escapeExpression } = require("hbs").handlebars;
 
 const app = require("../app");
 const trips = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "trips.json"), "utf8"));
+const DISPLAY_FIELDS = [
+  "name",
+  "image",
+  "imageAlt",
+  "eyebrow",
+  "description",
+  "bestFor",
+  "level",
+  "water",
+  "fieldNote",
+];
+const COURSE_FIELDS = [
+  "code",
+  "name",
+  "length",
+  "start",
+  "resort",
+  "perPerson",
+  "image",
+  "description",
+];
 
 const publicDirectory = path.join(__dirname, "..", "public");
 const pages = ["index.html", "rooms.html", "meals.html", "news.html", "about.html", "contact.html"];
@@ -89,7 +110,7 @@ function assertDocument(html) {
   assert.doesNotMatch(html, /\{\{/);
 }
 
-test("both Travel URLs render one complete document with partials and controller metadata", async () => {
+test("/travel and /travel/ render the full page", async () => {
   for (const url of ["/travel", "/travel/"]) {
     const response = await request(app).get(url).expect(200).expect("Content-Type", /html/);
     assertDocument(response.text);
@@ -104,18 +125,37 @@ test("both Travel URLs render one complete document with partials and controller
   }
 });
 
-test("Travel renders one complete card per JSON record, including every field", async () => {
+test("renders one card per trip with every display field", async () => {
   const response = await request(app).get("/travel").expect(200);
   const cards = [...response.text.matchAll(/<li class="listing-card">([\s\S]*?)<\/li>/g)];
   assert.equal(cards.length, trips.length);
   assert.ok(trips.length > 0);
   for (const [index, trip] of trips.entries()) {
     assert.ok(trip.description.startsWith(trip.name), "Description must begin with its trip name");
-    for (const [field, value] of Object.entries(trip)) {
+    for (const field of DISPLAY_FIELDS) {
+      const value = trip[field];
       assert.equal(typeof value, "string", field + " must contain text");
       assert.ok(value.trim(), field + " cannot be blank");
       assert.ok(cards[index][1].includes(escapeExpression(value)), field + " missing from card");
     }
+  }
+});
+
+test("trips.json has three valid records", () => {
+  assert.equal(trips.length, 3);
+  const codes = new Set();
+
+  for (const trip of trips) {
+    for (const field of COURSE_FIELDS) {
+      assert.equal(typeof trip[field], "string", field + " must contain text");
+      assert.ok(trip[field].trim(), field + " cannot be blank");
+    }
+    assert.match(trip.code, /^[A-Z]{4}\d{6}$/);
+    assert.ok(!codes.has(trip.code), "Trip codes must be unique");
+    codes.add(trip.code);
+    assert.ok(Number.isFinite(Date.parse(trip.start)), "Start must be an ISO date");
+    assert.ok(trip.start.endsWith("Z"), "Start must identify UTC");
+    assert.ok(trip.description.startsWith(trip.name), "Description must begin with its trip name");
   }
 });
 
@@ -171,7 +211,7 @@ test("empty trip data renders a useful message instead of leftover static cards"
 
 test("trip text and image attributes use escaped HBS interpolation", async () => {
   const hostile = '<script>alert("trip")</script> & reef';
-  const fixture = Object.fromEntries(Object.keys(trips[0]).map((key) => [key, hostile]));
+  const fixture = Object.fromEntries(DISPLAY_FIELDS.map((key) => [key, hostile]));
   const html = await renderTrips([fixture]);
   assert.ok(html.includes(escapeExpression(hostile)));
   assert.ok(html.includes('alt="' + escapeExpression(hostile) + '"'));
@@ -192,7 +232,7 @@ test("the HBS loop replaces static trip names and descriptions", () => {
   }
 });
 
-test("the application renders Travel when launched outside the project directory", () => {
+test("Travel works when started from another directory", () => {
   const applicationPath = path.join(__dirname, "..", "app.js");
   const supertestPath = require.resolve("supertest");
   const child = spawnSync(
@@ -214,7 +254,7 @@ test("the application renders Travel when launched outside the project directory
   for (const trip of trips) assert.ok(child.stdout.includes(escapeExpression(trip.description)));
 });
 
-test("Travel view interpolates and escapes supplied data and honors its navigation flag", async () => {
+test("escapes metadata and respects isTravel", async () => {
   const html = await new Promise((resolve, reject) => {
     app.render(
       "travel",
@@ -233,7 +273,7 @@ test("Travel view interpolates and escapes supplied data and honors its navigati
   assert.doesNotMatch(html, /aria-current="page"/);
 });
 
-test("every local link and asset in rendered Travel resolves at either URL", async () => {
+test("Travel page links and assets resolve", async () => {
   for (const url of ["/travel", "/travel/"]) {
     const response = await request(app).get(url).expect(200);
     const references = new Set(
@@ -272,7 +312,7 @@ test("main router delegates to its controller and uses the relocated layout", as
   assert.match(response.text, /href="\/css\/style.css"/);
 });
 
-test("error views retain their document layout and status in production", async () => {
+test("error handling returns the expected HTML and JSON responses", async () => {
   const previous = app.get("env");
   app.set("env", "production");
   try {

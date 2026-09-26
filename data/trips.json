@@ -1,6 +1,11 @@
 [
   {
+    "code": "GALR270314",
     "name": "Gale Reef",
+    "length": "4 nights / 5 days",
+    "start": "2027-03-14T12:00:00.000Z",
+    "resort": "Lantern Cove Dive Lodge, 3 stars",
+    "perPerson": "899.00",
     "image": "reef1.jpg",
     "imageAlt": "A diver beside a wall of colorful coral",
     "eyebrow": "Easygoing introduction",
@@ -11,7 +16,12 @@
     "fieldNote": "Choose one patch of reef and watch how its smallest residents move through the coral."
   },
   {
+    "code": "DAWR270502",
     "name": "Dawson's Reef",
+    "length": "5 nights / 6 days",
+    "start": "2027-05-02T12:00:00.000Z",
+    "resort": "Driftline Reef Camp, 4 stars",
+    "perPerson": "1249.00",
     "image": "reef2.jpg",
     "imageAlt": "A diver and small reef fish above colorful coral",
     "eyebrow": "Color in motion",
@@ -22,7 +32,12 @@
     "fieldNote": "Frame the reef first, then wait for a passing fish to become part of the picture."
   },
   {
+    "code": "CLAR270620",
     "name": "Claire's Reef",
+    "length": "6 nights / 7 days",
+    "start": "2027-06-20T12:00:00.000Z",
+    "resort": "Blue Horizon Research Resort, 5 stars",
+    "perPerson": "1695.00",
     "image": "reef3.jpg",
     "imageAlt": "Pale and orange coral beneath clear blue water",
     "eyebrow": "The deeper horizon",

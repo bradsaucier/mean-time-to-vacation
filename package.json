@@ -12,12 +12,14 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
-    "test": "node --test --test-reporter=spec test/app.test.js",
-    "test:coverage": "node --test --experimental-test-coverage test/app.test.js",
+    "seed": "node ./app_server/models/seed.js",
+    "verify:db": "node ./app_server/models/verify.js",
+    "test": "node --test --test-reporter=spec test/app.test.js test/trip-model.test.js test/db.integration.test.js",
+    "test:coverage": "node --test --experimental-test-coverage test/app.test.js test/trip-model.test.js test/db.integration.test.js",
     "check": "npm run lint && npm run format:check && npm test"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=22.13.0"
   },
   "packageManager": "npm@11.19.0",
   "dependencies": {
@@ -26,6 +28,7 @@
     "express": "^5.2.1",
     "hbs": "^4.2.0",
     "http-errors": "^2.0.1",
+    "mongoose": "^9.10.2",
     "morgan": "^1.10.1"
   },
   "devDependencies": {

@@ -6,7 +6,7 @@ const debug = require("debug")("travlr:server");
 const http = require("node:http");
 
 const app = require("../app");
-const db = require("../app_server/models/db");
+const db = require("../app_api/models/db");
 
 const port = normalizePort(process.env.PORT || "3000");
 app.set("port", port);
@@ -66,6 +66,6 @@ function onListening() {
 
   db.connect().catch((error) => {
     console.error(`MongoDB unavailable at ${db.dbURI}: ${error.message}`);
-    console.error("Travel still uses data/trips.json. Start MongoDB and restart to connect.");
+    console.error("The API and Travel page need MongoDB. Start MongoDB, seed, and restart.");
   });
 }

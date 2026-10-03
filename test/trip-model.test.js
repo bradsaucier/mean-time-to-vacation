@@ -5,7 +5,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
 
-const Trip = require("../app_server/models/travlr");
+const Trip = require("../app_api/models/travlr");
 
 const trips = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "trips.json"), "utf8"));
 

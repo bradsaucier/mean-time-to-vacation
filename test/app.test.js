@@ -9,6 +9,7 @@ const { spawnSync } = require("node:child_process");
 const { escapeExpression } = require("hbs").handlebars;
 
 const app = require("../app");
+const Trip = require("../app_api/models/travlr");
 const trips = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "trips.json"), "utf8"));
 const DISPLAY_FIELDS = [
   "name",
@@ -34,6 +35,12 @@ const COURSE_FIELDS = [
 
 const publicDirectory = path.join(__dirname, "..", "public");
 const pages = ["index.html", "rooms.html", "meals.html", "news.html", "about.html", "contact.html"];
+
+function stubTripsFetch(context, records = trips, status = 200) {
+  context.mock.method(globalThis, "fetch", async () =>
+    Response.json(records, { status, headers: { "Content-Type": "application/json" } }),
+  );
+}
 
 test("GET / serves the static Travlr home page", async () => {
   const response = await request(app).get("/").expect(200);
@@ -110,7 +117,8 @@ function assertDocument(html) {
   assert.doesNotMatch(html, /\{\{/);
 }
 
-test("/travel and /travel/ render the full page", async () => {
+test("/travel and /travel/ render the full page", async (context) => {
+  stubTripsFetch(context);
   for (const url of ["/travel", "/travel/"]) {
     const response = await request(app).get(url).expect(200).expect("Content-Type", /html/);
     assertDocument(response.text);
@@ -125,7 +133,8 @@ test("/travel and /travel/ render the full page", async () => {
   }
 });
 
-test("renders one card per trip with every display field", async () => {
+test("renders one card per trip with every display field", async (context) => {
+  stubTripsFetch(context);
   const response = await request(app).get("/travel").expect(200);
   const cards = [...response.text.matchAll(/<li class="listing-card">([\s\S]*?)<\/li>/g)];
   assert.equal(cards.length, trips.length);
@@ -159,9 +168,10 @@ test("trips.json has three valid records", () => {
   }
 });
 
-test("travel controller passes the file-backed collection to the HBS view", () => {
+test("travel controller passes the API collection to the HBS view", async (context) => {
+  stubTripsFetch(context);
   let rendered = false;
-  require("../app_server/controllers/travel").travel(
+  await require("../app_server/controllers/travel").travel(
     {},
     {
       render(view, locals) {
@@ -240,6 +250,8 @@ test("Travel works when started from another directory", () => {
     [
       "-e",
       `
+    const trips = ${JSON.stringify(trips)};
+    global.fetch = async () => Response.json(trips);
     const app = require(${JSON.stringify(applicationPath)});
     const request = require(${JSON.stringify(supertestPath)});
     request(app).get('/travel').expect(200).then(response => {
@@ -273,7 +285,11 @@ test("escapes metadata and respects isTravel", async () => {
   assert.doesNotMatch(html, /aria-current="page"/);
 });
 
-test("Travel page links and assets resolve", async () => {
+test("Travel page links and assets resolve", async (context) => {
+  stubTripsFetch(context);
+  context.mock.method(Trip, "findOne", ({ code }) => ({
+    exec: async () => trips.find((trip) => trip.code === code) || null,
+  }));
   for (const url of ["/travel", "/travel/"]) {
     const response = await request(app).get(url).expect(200);
     const references = new Set(
@@ -297,6 +313,53 @@ test("all static customer pages link to the rendered Travel route", () => {
     assert.match(html, /href="\/travel"/);
     assert.doesNotMatch(html, /href="travel\.html"/);
   }
+});
+
+test("GET /api/trips returns the trip collection", async (context) => {
+  context.mock.method(Trip, "find", () => ({
+    sort() {
+      return this;
+    },
+    exec: async () => trips,
+  }));
+
+  const response = await request(app).get("/api/trips").expect(200).expect("Content-Type", /json/);
+  assert.deepEqual(response.body, trips);
+});
+
+test("GET /api/trips/:tripCode returns one trip or a JSON 404", async (context) => {
+  context.mock.method(Trip, "findOne", ({ code }) => ({
+    exec: async () => trips.find((trip) => trip.code === code) || null,
+  }));
+
+  const found = await request(app)
+    .get("/api/trips/" + trips[0].code)
+    .expect(200)
+    .expect("Content-Type", /json/);
+  assert.equal(found.body.code, trips[0].code);
+
+  const missing = await request(app)
+    .get("/api/trips/ZZZZ999999")
+    .expect(404)
+    .expect("Content-Type", /json/);
+  assert.deepEqual(missing.body, { message: "Trip ZZZZ999999 was not found." });
+});
+
+test("GET /api/trips/:tripCode rejects malformed trip codes", async () => {
+  const response = await request(app)
+    .get("/api/trips/abc")
+    .expect(400)
+    .expect("Content-Type", /json/);
+  assert.deepEqual(response.body, { message: "Trip code must be four letters and six digits." });
+});
+
+test("unknown API routes return JSON", async () => {
+  const response = await request(app)
+    .get("/api/trip")
+    .set("Accept", "*/*")
+    .expect(404)
+    .expect("Content-Type", /json/);
+  assert.deepEqual(response.body, { message: "API route not found." });
 });
 
 test("main router delegates to its controller and uses the relocated layout", async () => {

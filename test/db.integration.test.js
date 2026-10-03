@@ -6,10 +6,10 @@ const { after, test } = require("node:test");
 // Never let integration tests reseed the assignment database.
 process.env.DB_NAME = "travlr_test";
 
-const db = require("../app_server/models/db");
-const { seedTrips } = require("../app_server/models/seed");
-const { verifyTrips } = require("../app_server/models/verify");
-const Trip = require("../app_server/models/travlr");
+const db = require("../app_api/models/db");
+const { seedTrips } = require("../app_api/models/seed");
+const { verifyTrips } = require("../app_api/models/verify");
+const Trip = require("../app_api/models/travlr");
 const sampleTrips = require("../data/trips.json");
 
 const skipReason =

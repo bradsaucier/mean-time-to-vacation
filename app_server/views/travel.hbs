@@ -23,10 +23,16 @@
           </p>
         </header>
 
+        {{#if message}}
+        <p class="trip-message" role="status">{{message}}</p>
+        {{/if}}
+
         <ul class="listing-grid reef-fieldbook" aria-label="Reef experiences">
           {{#each trips}}
           <li class="listing-card">
-            <img src="/images/{{this.image}}" alt="{{this.imageAlt}}" width="398" height="287" />
+            <a href="/api/trips/{{this.code}}">
+              <img src="/images/{{this.image}}" alt="{{this.imageAlt}}" width="398" height="287" />
+            </a>
             <div>
               <p class="eyebrow">{{this.eyebrow}}</p>
               <h2>{{this.name}}</h2>

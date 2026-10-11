@@ -34,9 +34,24 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            app_admin/package-lock.json
 
       - name: Install exact dependencies
         run: npm ci
 
-      - name: Clear the runway
-        run: npm run check
+      - name: Validate backend and seed data
+        run: |
+          node --check app.js
+          node --check bin/www
+          node -e "require('./app'); const { validateRecords } = require('./app_api/models/seed'); validateRecords(require('./data/trips.json')).catch(error => { console.error(error); process.exitCode = 1; });"
+
+      - name: Install Angular dependencies
+        run: npm run admin:install
+
+      - name: Test Angular
+        run: npm run admin:test
+
+      - name: Build Angular
+        run: npm run admin:build

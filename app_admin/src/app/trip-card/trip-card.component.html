@@ -1,0 +1,68 @@
+<article class="trip-card h-100" [class.saved-card]="highlighted()">
+  <div class="trip-photo">
+    <img [src]="'images/' + trip().image" [alt]="trip().imageAlt" /><span class="level-tag">{{
+      trip().level
+    }}</span>
+  </div>
+  <div class="trip-body">
+    <p class="manifest-code">{{ trip().code }}</p>
+    <p class="eyebrow">{{ trip().eyebrow }}</p>
+    <h2>{{ trip().name }}</h2>
+    <p class="trip-description">{{ trip().description }}</p>
+    <dl class="trip-details">
+      <div>
+        <dt>Departure</dt>
+        <dd>{{ trip().start | date: 'MMM d, y' : 'UTC' }}</dd>
+      </div>
+      <div>
+        <dt>Duration</dt>
+        <dd>{{ trip().length }}</dd>
+      </div>
+      <div class="wide">
+        <dt>Base camp</dt>
+        <dd>{{ trip().resort }}</dd>
+      </div>
+    </dl>
+    <div class="price-row">
+      <strong>{{ trip().perPerson | currency: 'USD' : 'symbol' : '1.2-2' }}</strong
+      ><span>per person</span>
+    </div>
+    <div class="card-actions">
+      @if (!confirming()) {
+        <a
+          class="btn btn-primary"
+          [routerLink]="['/edit-trip', trip().code]"
+          [attr.aria-label]="'Edit ' + trip().name"
+          [attr.aria-disabled]="busy()"
+          [class.disabled]="busy()"
+          >Edit trip</a
+        >
+        <button
+          class="btn btn-link delete-link"
+          [disabled]="busy()"
+          (click)="confirming.set(true)"
+          [attr.aria-label]="'Delete ' + trip().name"
+        >
+          Delete
+        </button>
+      } @else {
+        <div class="delete-confirm" role="alert">
+          <p>Delete {{ trip().name }}? This removes it from both sites.</p>
+          <button
+            class="btn btn-danger btn-sm"
+            [disabled]="busy()"
+            (click)="deleteConfirmed.emit(trip().code)"
+          >
+            {{ busy() ? 'Deleting...' : 'Confirm delete' }}</button
+          ><button
+            class="btn btn-outline-secondary btn-sm ms-2"
+            [disabled]="busy()"
+            (click)="confirming.set(false)"
+          >
+            Cancel
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+</article>

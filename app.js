@@ -27,6 +27,17 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use("/api", (request, response, next) => {
+  const origin = process.env.ADMIN_ORIGIN || "http://localhost:4200";
+  response.vary("Origin");
+  if (request.get("Origin") === origin) {
+    response.set("Access-Control-Allow-Origin", origin);
+    response.set("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+    response.set("Access-Control-Allow-Headers", "Content-Type");
+  }
+  if (request.method === "OPTIONS") return response.sendStatus(204);
+  next();
+});
 
 // Static middleware comes before the routers so public/index.html owns GET /.
 app.use(express.static(path.join(__dirname, "public")));
@@ -47,6 +58,12 @@ app.use((error, request, response, next) => {
   response.locals.status = error.status || 500;
   response.locals.error = request.app.get("env") === "development" ? error : {};
   response.status(error.status || 500);
+
+  if (request.path.startsWith("/api/")) {
+    return response.json({
+      message: error.status === 400 ? "Invalid JSON request." : "Request failed.",
+    });
+  }
 
   if (request.accepts("html")) {
     response.render("error");

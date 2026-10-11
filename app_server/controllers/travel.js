@@ -28,7 +28,8 @@ const travel = async (_request, response) => {
       layout: false,
     });
   } catch (error) {
-    response.status(500).send(error.message);
+    console.error("Travel page failed:", error.message);
+    response.status(500).send("Unable to load trips. Please try again.");
   }
 };
 

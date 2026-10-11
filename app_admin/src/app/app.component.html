@@ -1,0 +1,16 @@
+<a class="skip-link" href="#main" (click)="$event.preventDefault(); main.focus()">Skip to trips</a>
+<header class="masthead">
+  <div class="container desk-width d-flex justify-content-between align-items-center gap-3">
+    <a routerLink="/" class="brand"><img src="images/logo.png" alt="Travlr Getaways" /></a>
+    <nav aria-label="Main navigation" class="d-flex gap-3 align-items-center">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+        >Trip manifest</a
+      ><a href="http://localhost:3000/travel" target="_blank" rel="noopener">Public site</a
+      ><span class="desk-label">ADMIN DESK</span>
+    </nav>
+  </div>
+</header>
+<main #main id="main" tabindex="-1" class="container desk-width"><router-outlet /></main>
+<footer class="container desk-width footer-note">
+  TRAVLR GETAWAYS / OPERATIONS LOGBOOK <span>Plan carefully. Leave room for discovery.</span>
+</footer>

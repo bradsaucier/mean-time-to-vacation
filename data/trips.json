@@ -46,5 +46,21 @@
     "level": "Experienced",
     "water": "Outer reef profile",
     "fieldNote": "Look for the reef's silhouette against the blue before focusing on its finer details."
+  },
+  {
+    "code": "KAYK270912",
+    "name": "Kayak Bay Sunrise Shallows",
+    "length": "3 nights / 4 days",
+    "start": "2027-09-12T12:00:00.000Z",
+    "resort": "Sandbar Paddle Camp, 3 stars",
+    "perPerson": "799.00",
+    "image": "kayak.jpg",
+    "description": "Paddle a sheltered bay at first light, beach the kayaks on a quiet sandbar, and slip into shallow seagrass and coral patches with a guide who knows every resident turtle.",
+    "imageAlt": "Colorful sea kayaks resting on a sandy beach beside a calm bay",
+    "eyebrow": "Sunrise paddle to the reef",
+    "bestFor": "Snorkelers who want a gentle paddle-in start before deeper reef days",
+    "level": "Introductory",
+    "water": "Calm bay shallows",
+    "fieldNote": "Launch before the afternoon breeze; the sandbar is reachable only on a falling tide."
   }
 ]

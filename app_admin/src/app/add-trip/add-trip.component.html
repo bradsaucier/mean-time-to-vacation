@@ -1,0 +1,15 @@
+<section class="page-intro form-intro">
+  <div>
+    <a routerLink="/" class="back-link">Back to manifest</a>
+    <p class="eyebrow">OPERATIONS LOGBOOK / NEW DEPARTURE</p>
+    <h1>Add a trip.</h1>
+    <p class="intro-copy">Give the next adventure a place on the manifest.</p>
+  </div>
+</section>
+<app-trip-form
+  [form]="form"
+  [saving]="saving()"
+  [attempted]="attempted()"
+  [message]="message()"
+  (submitted)="submit()"
+/>

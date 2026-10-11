@@ -7,19 +7,14 @@
   "main": "app.js",
   "scripts": {
     "start": "node ./bin/www",
-    "dev": "node --watch ./bin/www",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier . --write",
-    "format:check": "prettier . --check",
     "seed": "node ./app_api/models/seed.js",
-    "verify:db": "node ./app_api/models/verify.js",
-    "test": "node --test --test-reporter=spec test/app.test.js test/trip-model.test.js test/db.integration.test.js",
-    "test:coverage": "node --test --experimental-test-coverage test/app.test.js test/trip-model.test.js test/db.integration.test.js",
-    "check": "npm run lint && npm run format:check && npm test"
+    "admin:install": "npm --prefix app_admin ci",
+    "admin:start": "npm --prefix app_admin start",
+    "admin:build": "npm --prefix app_admin run build",
+    "admin:test": "npm --prefix app_admin test -- --watch=false"
   },
   "engines": {
-    "node": ">=20.19.0"
+    "node": "^22.22.3 || ^24.15.0 || ^26.0.0"
   },
   "dependencies": {
     "cookie-parser": "^1.4.7",
@@ -30,11 +25,9 @@
     "mongoose": "^9.10.2",
     "morgan": "^1.10.1"
   },
-  "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "eslint": "^10.10.0",
-    "globals": "^17.12.0",
-    "prettier": "^3.9.6",
-    "supertest": "^7.2.2"
+  "overrides": {
+    "hbs": {
+      "handlebars": "4.7.10"
+    }
   }
 }

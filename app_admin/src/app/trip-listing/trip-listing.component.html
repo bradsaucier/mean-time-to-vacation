@@ -1,0 +1,66 @@
+<section class="page-intro">
+  <div>
+    <p class="eyebrow">OPERATIONS LOGBOOK / TRIP COLLECTION</p>
+    <h1>The dive manifest.</h1>
+    <p class="intro-copy">
+      Good trips begin with the details. Keep every departure ready for discovery.
+    </p>
+  </div>
+  <a routerLink="/add-trip" class="btn btn-primary add-trip">Add a trip</a>
+</section>
+@if (notices.notice(); as notice) {
+  <div class="alert save-notice" role="status">
+    <strong>Trip {{ notice.action }}.</strong> {{ notice.code }} / {{ notice.name
+    }}<button
+      class="notice-dismiss"
+      aria-label="Dismiss confirmation"
+      (click)="notices.notice.set(null)"
+    >
+      Dismiss
+    </button>
+  </div>
+}
+@if (error()) {
+  <div class="alert alert-danger" role="alert">
+    {{ error() }} <button class="btn btn-outline-danger btn-sm ms-2" (click)="load()">Retry</button>
+  </div>
+}
+<div class="manifest-toolbar">
+  <p>
+    <strong>{{ trips().length }}</strong> departures on the manifest
+    <span> / {{ visible().length }} shown</span>
+  </p>
+  <div>
+    <label for="trip-search" class="visually-hidden">Filter by trip name, code, or level</label
+    ><input
+      id="trip-search"
+      class="form-control"
+      placeholder="Find a trip or experience level"
+      type="search"
+      [value]="query()"
+      (input)="query.set($any($event.target).value)"
+    />
+  </div>
+</div>
+@if (loading()) {
+  <p class="state-panel" role="status">Loading the manifest...</p>
+} @else if (!trips().length && !error()) {
+  <div class="state-panel">
+    <h2>Your next departure starts here.</h2>
+    <p>No trips are on the manifest.</p>
+    <a routerLink="/add-trip" class="btn btn-primary">Add a trip</a>
+  </div>
+} @else if (!visible().length && trips().length) {
+  <p class="state-panel" role="status">No trips match your search. Try another name or level.</p>
+} @else {
+  <div class="row row-cols-1 row-cols-md-2 row-cols-xl-4 g-4">
+    @for (trip of visible(); track trip.code) {
+      <app-trip-card
+        [trip]="trip"
+        [busy]="deleting() === trip.code"
+        [highlighted]="notices.notice()?.code === trip.code"
+        (deleteConfirmed)="remove($event)"
+      />
+    }
+  </div>
+}

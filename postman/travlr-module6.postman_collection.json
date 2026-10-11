@@ -1,0 +1,393 @@
+{
+  "info": {
+    "name": "Travlr Module Six CRUD",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Creates and deletes only a disposable TEST trip owned by this run. Keep Express and MongoDB running."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api"
+    },
+    {
+      "key": "testCode",
+      "value": "TEST000001"
+    },
+    {
+      "key": "ownsRecord",
+      "value": "no"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 List trips",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/trips"
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.collectionVariables.set('testCode','TEST'+String(Date.now()).slice(-6));",
+              "pm.collectionVariables.set('ownsRecord','no');"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('Trip array',()=>pm.expect(pm.response.json()).to.be.an('array'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 Read seed trip",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/trips/GALR270314"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('Single object',()=>pm.expect(pm.response.json().code).to.eql('GALR270314'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 Create disposable trip",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/trips",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"code\": \"{{testCode}}\",\n  \"name\": \"Postman temporary trip\",\n  \"length\": \"3 nights / 4 days\",\n  \"start\": \"2027-09-12T12:00:00.000Z\",\n  \"resort\": \"Sandbar Paddle Camp, 3 stars\",\n  \"perPerson\": \"749.00\",\n  \"image\": \"kayak.jpg\",\n  \"description\": \"Paddle a sheltered bay at first light, beach the kayaks on a quiet sandbar, and slip into shallow seagrass and coral patches with a guide who knows every resident turtle.\",\n  \"imageAlt\": \"Colorful sea kayaks resting on a sandy beach beside a calm bay\",\n  \"eyebrow\": \"Paddle to the reef\",\n  \"bestFor\": \"Snorkelers who want a gentle paddle-in start before deeper reef days\",\n  \"level\": \"Introductory\",\n  \"water\": \"Calm bay shallows\",\n  \"fieldNote\": \"Launch before the afternoon breeze; the sandbar is reachable only on a falling tide.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 201',()=>pm.response.to.have.status(201));",
+              "if(pm.response.code===201) pm.collectionVariables.set('ownsRecord','yes');",
+              "pm.test('Location header',()=>pm.expect(pm.response.headers.get('Location')).to.include(pm.collectionVariables.get('testCode')));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 Duplicate code",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/trips",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"code\": \"{{testCode}}\",\n  \"name\": \"Postman temporary trip\",\n  \"length\": \"3 nights / 4 days\",\n  \"start\": \"2027-09-12T12:00:00.000Z\",\n  \"resort\": \"Sandbar Paddle Camp, 3 stars\",\n  \"perPerson\": \"749.00\",\n  \"image\": \"kayak.jpg\",\n  \"description\": \"Paddle a sheltered bay at first light, beach the kayaks on a quiet sandbar, and slip into shallow seagrass and coral patches with a guide who knows every resident turtle.\",\n  \"imageAlt\": \"Colorful sea kayaks resting on a sandy beach beside a calm bay\",\n  \"eyebrow\": \"Paddle to the reef\",\n  \"bestFor\": \"Snorkelers who want a gentle paddle-in start before deeper reef days\",\n  \"level\": \"Introductory\",\n  \"water\": \"Calm bay shallows\",\n  \"fieldNote\": \"Launch before the afternoon breeze; the sandbar is reachable only on a falling tide.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if(pm.collectionVariables.get('ownsRecord') !== 'yes') pm.execution.skipRequest();"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 409',()=>pm.response.to.have.status(409));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 Invalid input",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/trips",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"code\": \"BAD\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400',()=>pm.response.to.have.status(400));",
+              "pm.test('Validation details',()=>pm.expect(pm.response.json().errors).to.have.property('name'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 Update trip",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/trips/{{testCode}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"code\": \"{{testCode}}\",\n  \"name\": \"Postman updated trip\",\n  \"length\": \"3 nights / 4 days\",\n  \"start\": \"2027-09-12T12:00:00.000Z\",\n  \"resort\": \"Sandbar Paddle Camp, 3 stars\",\n  \"perPerson\": \"799.00\",\n  \"image\": \"kayak.jpg\",\n  \"description\": \"Paddle a sheltered bay at first light, beach the kayaks on a quiet sandbar, and slip into shallow seagrass and coral patches with a guide who knows every resident turtle.\",\n  \"imageAlt\": \"Colorful sea kayaks resting on a sandy beach beside a calm bay\",\n  \"eyebrow\": \"Paddle to the reef\",\n  \"bestFor\": \"Snorkelers who want a gentle paddle-in start before deeper reef days\",\n  \"level\": \"Introductory\",\n  \"water\": \"Calm bay shallows\",\n  \"fieldNote\": \"Launch before the afternoon breeze; the sandbar is reachable only on a falling tide.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if(pm.collectionVariables.get('ownsRecord') !== 'yes') pm.execution.skipRequest();"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('Saved values',()=>{pm.expect(pm.response.json().name).to.eql('Postman updated trip');pm.expect(pm.response.json().perPerson).to.eql('799.00');});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 Read persisted update",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/trips/{{testCode}}"
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if(pm.collectionVariables.get('ownsRecord') !== 'yes') pm.execution.skipRequest();"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test('Update persists',()=>pm.expect(pm.response.json().name).to.eql('Postman updated trip'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 Reject invalid price",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/trips/{{testCode}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"code\": \"{{testCode}}\",\n  \"name\": \"Postman temporary trip\",\n  \"length\": \"3 nights / 4 days\",\n  \"start\": \"2027-09-12T12:00:00.000Z\",\n  \"resort\": \"Sandbar Paddle Camp, 3 stars\",\n  \"perPerson\": \"abc\",\n  \"image\": \"kayak.jpg\",\n  \"description\": \"Paddle a sheltered bay at first light, beach the kayaks on a quiet sandbar, and slip into shallow seagrass and coral patches with a guide who knows every resident turtle.\",\n  \"imageAlt\": \"Colorful sea kayaks resting on a sandy beach beside a calm bay\",\n  \"eyebrow\": \"Paddle to the reef\",\n  \"bestFor\": \"Snorkelers who want a gentle paddle-in start before deeper reef days\",\n  \"level\": \"Introductory\",\n  \"water\": \"Calm bay shallows\",\n  \"fieldNote\": \"Launch before the afternoon breeze; the sandbar is reachable only on a falling tide.\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if(pm.collectionVariables.get('ownsRecord') !== 'yes') pm.execution.skipRequest();"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400',()=>pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 Missing trip",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/trips/ZZZZ999999"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 404',()=>pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 Delete disposable trip",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/trips/{{testCode}}"
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if(pm.collectionVariables.get('ownsRecord') !== 'yes') pm.execution.skipRequest();"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 204',()=>pm.response.to.have.status(204));",
+              "pm.test('Empty response',()=>pm.expect(pm.response.text()).to.eql(''));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 Confirm deletion",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/trips/{{testCode}}"
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if(pm.collectionVariables.get('ownsRecord') !== 'yes') pm.execution.skipRequest();"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 404',()=>pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 Invalid identifier",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/trips/BAD"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('HTTP 400',()=>pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

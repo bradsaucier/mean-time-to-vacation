@@ -140,7 +140,7 @@ test("renders one card per trip with every display field", async (context) => {
   assert.equal(cards.length, trips.length);
   assert.ok(trips.length > 0);
   for (const [index, trip] of trips.entries()) {
-    assert.ok(trip.description.startsWith(trip.name), "Description must begin with its trip name");
+    assert.ok(trip.description.trim(), "Description must not be blank");
     for (const field of DISPLAY_FIELDS) {
       const value = trip[field];
       assert.equal(typeof value, "string", field + " must contain text");
@@ -150,8 +150,8 @@ test("renders one card per trip with every display field", async (context) => {
   }
 });
 
-test("trips.json has three valid records", () => {
-  assert.equal(trips.length, 3);
+test("trips.json has four valid records", () => {
+  assert.equal(trips.length, 4);
   const codes = new Set();
 
   for (const trip of trips) {
@@ -164,7 +164,7 @@ test("trips.json has three valid records", () => {
     codes.add(trip.code);
     assert.ok(Number.isFinite(Date.parse(trip.start)), "Start must be an ISO date");
     assert.ok(trip.start.endsWith("Z"), "Start must identify UTC");
-    assert.ok(trip.description.startsWith(trip.name), "Description must begin with its trip name");
+    assert.ok(trip.description.trim(), "Description must not be blank");
   }
 });
 

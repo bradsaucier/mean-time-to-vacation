@@ -11,7 +11,11 @@
     "admin:install": "npm --prefix app_admin ci",
     "admin:start": "npm --prefix app_admin start",
     "admin:build": "npm --prefix app_admin run build",
-    "admin:test": "npm --prefix app_admin test -- --watch=false"
+    "admin:test": "npm --prefix app_admin test -- --watch=false",
+    "test": "node --test",
+    "verify:db": "node app_api/models/verify.js",
+    "postman:environment": "node scripts/postman-environment.js",
+    "test:postman": "npm run postman:environment && npm exec --yes --package=newman@6.2.3 -- newman run postman/travlr-module7.postman_collection.json -e postman/module7.local.postman_environment.json"
   },
   "engines": {
     "node": "^22.22.3 || ^24.15.0 || ^26.0.0"
@@ -19,15 +23,22 @@
   "dependencies": {
     "cookie-parser": "^1.4.7",
     "debug": "^4.4.3",
+    "dotenv": "^18.0.7",
     "express": "^5.2.1",
     "hbs": "^4.2.0",
     "http-errors": "^2.0.1",
+    "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.10.2",
-    "morgan": "^1.10.1"
+    "morgan": "^1.10.1",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0"
   },
   "overrides": {
     "hbs": {
       "handlebars": "4.7.10"
     }
+  },
+  "devDependencies": {
+    "supertest": "^7.3.1"
   }
 }

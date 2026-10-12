@@ -7,6 +7,7 @@ node_modules/
 !.env.example
 
 # Build and test output
+.angular/
 coverage/
 dist/
 output/
@@ -29,3 +30,5 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 Desktop.ini
+
+postman/*.local.postman_environment.json

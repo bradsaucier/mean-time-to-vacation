@@ -8,11 +8,16 @@ import { TripCardComponent } from './trip-card.component';
 
 import { MOCK_TRIP } from '../testing/mock-trips';
 
+import { AuthenticationService } from '../services/authentication.service';
+
 describe('Trip card', () => {
   it('renders mock data and confirms deletion explicitly', async () => {
     TestBed.configureTestingModule({
       imports: [TripCardComponent],
-      providers: [provideRouter([])],
+      providers: [
+        provideRouter([]),
+        { provide: AuthenticationService, useValue: { isLoggedIn: () => true } },
+      ],
     });
     const fixture = TestBed.createComponent(TripCardComponent);
     fixture.componentRef.setInput('trip', MOCK_TRIP);
@@ -37,5 +42,22 @@ describe('Trip card', () => {
     fixture.componentRef.setInput('busy', true);
     await fixture.whenStable();
     expect(el.querySelector('.btn-danger').disabled).toBe(true);
+  });
+});
+
+describe('Trip card when logged out', () => {
+  it('hides edit and delete controls', async () => {
+    TestBed.configureTestingModule({
+      imports: [TripCardComponent],
+      providers: [
+        provideRouter([]),
+        { provide: AuthenticationService, useValue: { isLoggedIn: () => false } },
+      ],
+    });
+    const fixture = TestBed.createComponent(TripCardComponent);
+    fixture.componentRef.setInput('trip', MOCK_TRIP);
+    await fixture.whenStable();
+    expect(fixture.nativeElement.textContent).toContain('Kayak Bay Shallows');
+    expect(fixture.nativeElement.querySelector('.card-actions')).toBeNull();
   });
 });

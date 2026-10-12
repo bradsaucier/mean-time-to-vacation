@@ -1,4 +1,5 @@
 "use strict";
+require("dotenv").config({ path: require("node:path").join(__dirname, "../../.env"), quiet: true });
 
 const fs = require("node:fs");
 const path = require("node:path");

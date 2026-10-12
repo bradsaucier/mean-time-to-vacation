@@ -1,0 +1,1257 @@
+{
+  "info": {
+    "name": "Travlr Module Seven Authentication and CRUD",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api"
+    },
+    {
+      "key": "expiredToken",
+      "value": ""
+    },
+    {
+      "key": "wrongSecretToken",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Register mock user",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/register",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"name\":\"Module Seven QA\",\"email\":\"{{email}}\",\"password\":\"MockPassw0rd!\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.collectionVariables.set('email', 'module7-' + Date.now() + '@example.test');"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 200',()=>pm.response.to.have.status(200));",
+              "pm.collectionVariables.set('email', JSON.parse(pm.variables.replaceIn(pm.request.body.raw)).email);",
+              "pm.collectionVariables.set('token',pm.response.json().token);",
+              "pm.test('JWT returned',()=>pm.expect(pm.response.json().token.split('.')).to.have.lengthOf(3));",
+              "pm.test('Only a token is returned', () => pm.expect(Object.keys(pm.response.json())).to.eql(['token']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Duplicate registration",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/register",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"name\":\"Module Seven QA\",\"email\":\"{{email}}\",\"password\":\"MockPassw0rd!\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 409',()=>pm.response.to.have.status(409));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Missing registration fields",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/register",
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 400',()=>pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Non-string registration fields",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/register",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"name\":[],\"email\":{},\"password\":42}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 400',()=>pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Missing login body",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}/login"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 400',()=>pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invalid credentials",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"{{email}}\",\"password\":\"wrong\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 401',()=>pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Unknown user",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"missing@example.test\",\"password\":\"wrong\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 401',()=>pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"{{email}}\",\"password\":\"MockPassw0rd!\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 200',()=>pm.response.to.have.status(200));",
+              "pm.collectionVariables.set('token',pm.response.json().token);",
+              "const parts=pm.response.json().token.split('.'); parts[2]=(parts[2][0]==='a'?'b':'a')+parts[2].slice(1); pm.collectionVariables.set('tamperedToken',parts.join('.'));",
+              "pm.test('Only a token is returned', () => pm.expect(Object.keys(pm.response.json())).to.eql(['token']));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST rejects missing token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/trips",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"code\":\"TEST000001\",\"name\":\"Postman QA trip\",\"length\":\"4 nights / 5 days\",\"start\":\"2027-03-14T12:00:00.000Z\",\"resort\":\"Lantern Cove Dive Lodge, 3 stars\",\"perPerson\":\"899.00\",\"image\":\"reef1.jpg\",\"imageAlt\":\"A diver beside a wall of colorful coral\",\"eyebrow\":\"Easygoing introduction\",\"description\":\"Gale Reef invites you to slow down and notice the small things. Explore a sheltered coral garden, where a patient pause reveals more than a hurried lap.\",\"bestFor\":\"First reef visits and unhurried observation\",\"level\":\"Introductory\",\"water\":\"Sheltered coral garden\",\"fieldNote\":\"Choose one patch of reef and watch how its smallest residents move through the coral.\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 401',()=>pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST rejects malformed header",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Basic abc"
+          }
+        ],
+        "url": "{{baseUrl}}/trips",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"code\":\"TEST000001\",\"name\":\"Postman QA trip\",\"length\":\"4 nights / 5 days\",\"start\":\"2027-03-14T12:00:00.000Z\",\"resort\":\"Lantern Cove Dive Lodge, 3 stars\",\"perPerson\":\"899.00\",\"image\":\"reef1.jpg\",\"imageAlt\":\"A diver beside a wall of colorful coral\",\"eyebrow\":\"Easygoing introduction\",\"description\":\"Gale Reef invites you to slow down and notice the small things. Explore a sheltered coral garden, where a patient pause reveals more than a hurried lap.\",\"bestFor\":\"First reef visits and unhurried observation\",\"level\":\"Introductory\",\"water\":\"Sheltered coral garden\",\"fieldNote\":\"Choose one patch of reef and watch how its smallest residents move through the coral.\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 401',()=>pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST rejects broken token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer not.a.jwt"
+          }
+        ],
+        "url": "{{baseUrl}}/trips",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"code\":\"TEST000001\",\"name\":\"Postman QA trip\",\"length\":\"4 nights / 5 days\",\"start\":\"2027-03-14T12:00:00.000Z\",\"resort\":\"Lantern Cove Dive Lodge, 3 stars\",\"perPerson\":\"899.00\",\"image\":\"reef1.jpg\",\"imageAlt\":\"A diver beside a wall of colorful coral\",\"eyebrow\":\"Easygoing introduction\",\"description\":\"Gale Reef invites you to slow down and notice the small things. Explore a sheltered coral garden, where a patient pause reveals more than a hurried lap.\",\"bestFor\":\"First reef visits and unhurried observation\",\"level\":\"Introductory\",\"water\":\"Sheltered coral garden\",\"fieldNote\":\"Choose one patch of reef and watch how its smallest residents move through the coral.\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 401',()=>pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST rejects tampered token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tamperedToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/trips",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"code\":\"TEST000001\",\"name\":\"Postman QA trip\",\"length\":\"4 nights / 5 days\",\"start\":\"2027-03-14T12:00:00.000Z\",\"resort\":\"Lantern Cove Dive Lodge, 3 stars\",\"perPerson\":\"899.00\",\"image\":\"reef1.jpg\",\"imageAlt\":\"A diver beside a wall of colorful coral\",\"eyebrow\":\"Easygoing introduction\",\"description\":\"Gale Reef invites you to slow down and notice the small things. Explore a sheltered coral garden, where a patient pause reveals more than a hurried lap.\",\"bestFor\":\"First reef visits and unhurried observation\",\"level\":\"Introductory\",\"water\":\"Sheltered coral garden\",\"fieldNote\":\"Choose one patch of reef and watch how its smallest residents move through the coral.\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 401',()=>pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST rejects expired token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{expiredToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/trips",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"code\":\"TEST000001\",\"name\":\"Postman QA trip\",\"length\":\"4 nights / 5 days\",\"start\":\"2027-03-14T12:00:00.000Z\",\"resort\":\"Lantern Cove Dive Lodge, 3 stars\",\"perPerson\":\"899.00\",\"image\":\"reef1.jpg\",\"imageAlt\":\"A diver beside a wall of colorful coral\",\"eyebrow\":\"Easygoing introduction\",\"description\":\"Gale Reef invites you to slow down and notice the small things. Explore a sheltered coral garden, where a patient pause reveals more than a hurried lap.\",\"bestFor\":\"First reef visits and unhurried observation\",\"level\":\"Introductory\",\"water\":\"Sheltered coral garden\",\"fieldNote\":\"Choose one patch of reef and watch how its smallest residents move through the coral.\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 401',()=>pm.response.to.have.status(401));",
+              "pm.test('Expired token was checked', () => pm.expect(pm.response.json().message).to.equal('Token expired.'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST rejects wrong secret",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{wrongSecretToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/trips",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"code\":\"TEST000001\",\"name\":\"Postman QA trip\",\"length\":\"4 nights / 5 days\",\"start\":\"2027-03-14T12:00:00.000Z\",\"resort\":\"Lantern Cove Dive Lodge, 3 stars\",\"perPerson\":\"899.00\",\"image\":\"reef1.jpg\",\"imageAlt\":\"A diver beside a wall of colorful coral\",\"eyebrow\":\"Easygoing introduction\",\"description\":\"Gale Reef invites you to slow down and notice the small things. Explore a sheltered coral garden, where a patient pause reveals more than a hurried lap.\",\"bestFor\":\"First reef visits and unhurried observation\",\"level\":\"Introductory\",\"water\":\"Sheltered coral garden\",\"fieldNote\":\"Choose one patch of reef and watch how its smallest residents move through the coral.\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 401',()=>pm.response.to.have.status(401));",
+              "pm.test('Invalid signature was checked', () => pm.expect(pm.response.json().message).to.equal('Token validation error.'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "POST rejects unsigned token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJfaWQiOiIxIn0."
+          }
+        ],
+        "url": "{{baseUrl}}/trips",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"code\":\"TEST000001\",\"name\":\"Postman QA trip\",\"length\":\"4 nights / 5 days\",\"start\":\"2027-03-14T12:00:00.000Z\",\"resort\":\"Lantern Cove Dive Lodge, 3 stars\",\"perPerson\":\"899.00\",\"image\":\"reef1.jpg\",\"imageAlt\":\"A diver beside a wall of colorful coral\",\"eyebrow\":\"Easygoing introduction\",\"description\":\"Gale Reef invites you to slow down and notice the small things. Explore a sheltered coral garden, where a patient pause reveals more than a hurried lap.\",\"bestFor\":\"First reef visits and unhurried observation\",\"level\":\"Introductory\",\"water\":\"Sheltered coral garden\",\"fieldNote\":\"Choose one patch of reef and watch how its smallest residents move through the coral.\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 401',()=>pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PUT rejects missing token",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/trips/TEST000001",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"code\":\"TEST000001\",\"name\":\"Postman updated trip\",\"length\":\"4 nights / 5 days\",\"start\":\"2027-03-14T12:00:00.000Z\",\"resort\":\"Lantern Cove Dive Lodge, 3 stars\",\"perPerson\":\"899.00\",\"image\":\"reef1.jpg\",\"imageAlt\":\"A diver beside a wall of colorful coral\",\"eyebrow\":\"Easygoing introduction\",\"description\":\"Gale Reef invites you to slow down and notice the small things. Explore a sheltered coral garden, where a patient pause reveals more than a hurried lap.\",\"bestFor\":\"First reef visits and unhurried observation\",\"level\":\"Introductory\",\"water\":\"Sheltered coral garden\",\"fieldNote\":\"Choose one patch of reef and watch how its smallest residents move through the coral.\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 401',()=>pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PUT rejects malformed header",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Basic abc"
+          }
+        ],
+        "url": "{{baseUrl}}/trips/TEST000001",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"code\":\"TEST000001\",\"name\":\"Postman updated trip\",\"length\":\"4 nights / 5 days\",\"start\":\"2027-03-14T12:00:00.000Z\",\"resort\":\"Lantern Cove Dive Lodge, 3 stars\",\"perPerson\":\"899.00\",\"image\":\"reef1.jpg\",\"imageAlt\":\"A diver beside a wall of colorful coral\",\"eyebrow\":\"Easygoing introduction\",\"description\":\"Gale Reef invites you to slow down and notice the small things. Explore a sheltered coral garden, where a patient pause reveals more than a hurried lap.\",\"bestFor\":\"First reef visits and unhurried observation\",\"level\":\"Introductory\",\"water\":\"Sheltered coral garden\",\"fieldNote\":\"Choose one patch of reef and watch how its smallest residents move through the coral.\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 401',()=>pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PUT rejects broken token",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer not.a.jwt"
+          }
+        ],
+        "url": "{{baseUrl}}/trips/TEST000001",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"code\":\"TEST000001\",\"name\":\"Postman updated trip\",\"length\":\"4 nights / 5 days\",\"start\":\"2027-03-14T12:00:00.000Z\",\"resort\":\"Lantern Cove Dive Lodge, 3 stars\",\"perPerson\":\"899.00\",\"image\":\"reef1.jpg\",\"imageAlt\":\"A diver beside a wall of colorful coral\",\"eyebrow\":\"Easygoing introduction\",\"description\":\"Gale Reef invites you to slow down and notice the small things. Explore a sheltered coral garden, where a patient pause reveals more than a hurried lap.\",\"bestFor\":\"First reef visits and unhurried observation\",\"level\":\"Introductory\",\"water\":\"Sheltered coral garden\",\"fieldNote\":\"Choose one patch of reef and watch how its smallest residents move through the coral.\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 401',()=>pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PUT rejects tampered token",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tamperedToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/trips/TEST000001",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"code\":\"TEST000001\",\"name\":\"Postman updated trip\",\"length\":\"4 nights / 5 days\",\"start\":\"2027-03-14T12:00:00.000Z\",\"resort\":\"Lantern Cove Dive Lodge, 3 stars\",\"perPerson\":\"899.00\",\"image\":\"reef1.jpg\",\"imageAlt\":\"A diver beside a wall of colorful coral\",\"eyebrow\":\"Easygoing introduction\",\"description\":\"Gale Reef invites you to slow down and notice the small things. Explore a sheltered coral garden, where a patient pause reveals more than a hurried lap.\",\"bestFor\":\"First reef visits and unhurried observation\",\"level\":\"Introductory\",\"water\":\"Sheltered coral garden\",\"fieldNote\":\"Choose one patch of reef and watch how its smallest residents move through the coral.\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 401',()=>pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PUT rejects expired token",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{expiredToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/trips/TEST000001",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"code\":\"TEST000001\",\"name\":\"Postman updated trip\",\"length\":\"4 nights / 5 days\",\"start\":\"2027-03-14T12:00:00.000Z\",\"resort\":\"Lantern Cove Dive Lodge, 3 stars\",\"perPerson\":\"899.00\",\"image\":\"reef1.jpg\",\"imageAlt\":\"A diver beside a wall of colorful coral\",\"eyebrow\":\"Easygoing introduction\",\"description\":\"Gale Reef invites you to slow down and notice the small things. Explore a sheltered coral garden, where a patient pause reveals more than a hurried lap.\",\"bestFor\":\"First reef visits and unhurried observation\",\"level\":\"Introductory\",\"water\":\"Sheltered coral garden\",\"fieldNote\":\"Choose one patch of reef and watch how its smallest residents move through the coral.\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 401',()=>pm.response.to.have.status(401));",
+              "pm.test('Expired token was checked', () => pm.expect(pm.response.json().message).to.equal('Token expired.'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PUT rejects wrong secret",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{wrongSecretToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/trips/TEST000001",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"code\":\"TEST000001\",\"name\":\"Postman updated trip\",\"length\":\"4 nights / 5 days\",\"start\":\"2027-03-14T12:00:00.000Z\",\"resort\":\"Lantern Cove Dive Lodge, 3 stars\",\"perPerson\":\"899.00\",\"image\":\"reef1.jpg\",\"imageAlt\":\"A diver beside a wall of colorful coral\",\"eyebrow\":\"Easygoing introduction\",\"description\":\"Gale Reef invites you to slow down and notice the small things. Explore a sheltered coral garden, where a patient pause reveals more than a hurried lap.\",\"bestFor\":\"First reef visits and unhurried observation\",\"level\":\"Introductory\",\"water\":\"Sheltered coral garden\",\"fieldNote\":\"Choose one patch of reef and watch how its smallest residents move through the coral.\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 401',()=>pm.response.to.have.status(401));",
+              "pm.test('Invalid signature was checked', () => pm.expect(pm.response.json().message).to.equal('Token validation error.'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "PUT rejects unsigned token",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJfaWQiOiIxIn0."
+          }
+        ],
+        "url": "{{baseUrl}}/trips/TEST000001",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"code\":\"TEST000001\",\"name\":\"Postman updated trip\",\"length\":\"4 nights / 5 days\",\"start\":\"2027-03-14T12:00:00.000Z\",\"resort\":\"Lantern Cove Dive Lodge, 3 stars\",\"perPerson\":\"899.00\",\"image\":\"reef1.jpg\",\"imageAlt\":\"A diver beside a wall of colorful coral\",\"eyebrow\":\"Easygoing introduction\",\"description\":\"Gale Reef invites you to slow down and notice the small things. Explore a sheltered coral garden, where a patient pause reveals more than a hurried lap.\",\"bestFor\":\"First reef visits and unhurried observation\",\"level\":\"Introductory\",\"water\":\"Sheltered coral garden\",\"fieldNote\":\"Choose one patch of reef and watch how its smallest residents move through the coral.\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 401',()=>pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "DELETE rejects missing token",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/trips/TEST000001"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 401',()=>pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "DELETE rejects malformed header",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Basic abc"
+          }
+        ],
+        "url": "{{baseUrl}}/trips/TEST000001"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 401',()=>pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "DELETE rejects broken token",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer not.a.jwt"
+          }
+        ],
+        "url": "{{baseUrl}}/trips/TEST000001"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 401',()=>pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "DELETE rejects tampered token",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tamperedToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/trips/TEST000001"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 401',()=>pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "DELETE rejects expired token",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{expiredToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/trips/TEST000001"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 401',()=>pm.response.to.have.status(401));",
+              "pm.test('Expired token was checked', () => pm.expect(pm.response.json().message).to.equal('Token expired.'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "DELETE rejects wrong secret",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{wrongSecretToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/trips/TEST000001"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 401',()=>pm.response.to.have.status(401));",
+              "pm.test('Invalid signature was checked', () => pm.expect(pm.response.json().message).to.equal('Token validation error.'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "DELETE rejects unsigned token",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJfaWQiOiIxIn0."
+          }
+        ],
+        "url": "{{baseUrl}}/trips/TEST000001"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 401',()=>pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Public reads",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/trips"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 200',()=>pm.response.to.have.status(200));",
+              "pm.test('Trip array',()=>pm.expect(pm.response.json()).to.be.an('array'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Public reads ignore bad token",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer invalid"
+          }
+        ],
+        "url": "{{baseUrl}}/trips"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 200',()=>pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create trip",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": "{{baseUrl}}/trips",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"code\":\"TEST000001\",\"name\":\"Postman QA trip\",\"length\":\"4 nights / 5 days\",\"start\":\"2027-03-14T12:00:00.000Z\",\"resort\":\"Lantern Cove Dive Lodge, 3 stars\",\"perPerson\":\"899.00\",\"image\":\"reef1.jpg\",\"imageAlt\":\"A diver beside a wall of colorful coral\",\"eyebrow\":\"Easygoing introduction\",\"description\":\"Gale Reef invites you to slow down and notice the small things. Explore a sheltered coral garden, where a patient pause reveals more than a hurried lap.\",\"bestFor\":\"First reef visits and unhurried observation\",\"level\":\"Introductory\",\"water\":\"Sheltered coral garden\",\"fieldNote\":\"Choose one patch of reef and watch how its smallest residents move through the coral.\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 201',()=>pm.response.to.have.status(201));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Duplicate trip",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": "{{baseUrl}}/trips",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"code\":\"TEST000001\",\"name\":\"Postman QA trip\",\"length\":\"4 nights / 5 days\",\"start\":\"2027-03-14T12:00:00.000Z\",\"resort\":\"Lantern Cove Dive Lodge, 3 stars\",\"perPerson\":\"899.00\",\"image\":\"reef1.jpg\",\"imageAlt\":\"A diver beside a wall of colorful coral\",\"eyebrow\":\"Easygoing introduction\",\"description\":\"Gale Reef invites you to slow down and notice the small things. Explore a sheltered coral garden, where a patient pause reveals more than a hurried lap.\",\"bestFor\":\"First reef visits and unhurried observation\",\"level\":\"Introductory\",\"water\":\"Sheltered coral garden\",\"fieldNote\":\"Choose one patch of reef and watch how its smallest residents move through the coral.\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 409',()=>pm.response.to.have.status(409));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Read created trip",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/trips/TEST000001"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 200',()=>pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Update trip",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": "{{baseUrl}}/trips/TEST000001",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"code\":\"TEST000001\",\"name\":\"Postman updated trip\",\"length\":\"4 nights / 5 days\",\"start\":\"2027-03-14T12:00:00.000Z\",\"resort\":\"Lantern Cove Dive Lodge, 3 stars\",\"perPerson\":\"899.00\",\"image\":\"reef1.jpg\",\"imageAlt\":\"A diver beside a wall of colorful coral\",\"eyebrow\":\"Easygoing introduction\",\"description\":\"Gale Reef invites you to slow down and notice the small things. Explore a sheltered coral garden, where a patient pause reveals more than a hurried lap.\",\"bestFor\":\"First reef visits and unhurried observation\",\"level\":\"Introductory\",\"water\":\"Sheltered coral garden\",\"fieldNote\":\"Choose one patch of reef and watch how its smallest residents move through the coral.\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 200',()=>pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Verify persisted update",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/trips/TEST000001"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 200',()=>pm.response.to.have.status(200));",
+              "pm.test('Updated name persisted',()=>pm.expect(pm.response.json().name).to.equal('Postman updated trip'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Delete trip",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": "{{baseUrl}}/trips/TEST000001"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 204',()=>pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Verify deletion",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/trips/TEST000001"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 404',()=>pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Invalid authenticated trip",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}"
+          }
+        ],
+        "url": "{{baseUrl}}/trips",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"code\":\"TEST000002\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Expected status 400',()=>pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "for (const key of ['expiredToken', 'wrongSecretToken']) {",
+          "  const token = pm.variables.get(key);",
+          "  if (typeof token !== 'string' || token.split('.').length !== 3) {",
+          "    throw new Error('Select the environment generated by npm run postman:environment. Missing ' + key);",
+          "  }",
+          "}"
+        ]
+      }
+    }
+  ]
+}

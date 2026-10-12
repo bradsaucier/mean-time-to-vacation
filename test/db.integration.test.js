@@ -18,14 +18,14 @@ const skipReason =
     : "set MONGODB_INTEGRATION=1 to run against local MongoDB";
 
 test(
-  "seeding twice leaves three trips with Date starts and indexes",
+  "seeding twice leaves four trips with Date starts and indexes",
   { skip: skipReason, timeout: 30000 },
   async () => {
     await seedTrips();
     await seedTrips();
 
     const trips = await Trip.find().sort({ start: 1 }).lean();
-    assert.equal(trips.length, 3);
+    assert.equal(trips.length, 4);
     for (const trip of trips) assert.ok(trip.start instanceof Date);
 
     const roundTrip = JSON.parse(JSON.stringify(trips));
@@ -36,7 +36,7 @@ test(
     assert.ok(indexes.some((index) => index.key.name === 1));
 
     const json = await verifyTrips();
-    assert.equal(json.length, 3);
+    assert.equal(json.length, 4);
   },
 );
 
@@ -51,7 +51,7 @@ test(
     await Trip.collection.insertMany(duplicateTrips);
 
     await seedTrips();
-    assert.equal(await Trip.countDocuments(), 3);
+    assert.equal(await Trip.countDocuments(), 4);
   },
 );
 

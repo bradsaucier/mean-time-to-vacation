@@ -2,10 +2,16 @@ import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/
 
 import { provideRouter } from '@angular/router';
 
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 
 import { routes } from './app.routes';
 
+import { jwtInterceptor } from './utils/jwt.interceptor';
+
 export const appConfig: ApplicationConfig = {
-  providers: [provideBrowserGlobalErrorListeners(), provideRouter(routes), provideHttpClient()],
+  providers: [
+    provideBrowserGlobalErrorListeners(),
+    provideRouter(routes),
+    provideHttpClient(withInterceptors([jwtInterceptor])),
+  ],
 };

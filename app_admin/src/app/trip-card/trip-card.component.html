@@ -12,7 +12,7 @@
     <dl class="trip-details">
       <div>
         <dt>Departure</dt>
-        <dd>{{ trip().start | date: 'MMM d, y' : 'UTC' }}</dd>
+        <dd>{{ trip().start | date: "MMM d, y" : "UTC" }}</dd>
       </div>
       <div>
         <dt>Duration</dt>
@@ -24,45 +24,47 @@
       </div>
     </dl>
     <div class="price-row">
-      <strong>{{ trip().perPerson | currency: 'USD' : 'symbol' : '1.2-2' }}</strong
+      <strong>{{ trip().perPerson | currency: "USD" : "symbol" : "1.2-2" }}</strong
       ><span>per person</span>
     </div>
-    <div class="card-actions">
-      @if (!confirming()) {
-        <a
-          class="btn btn-primary"
-          [routerLink]="['/edit-trip', trip().code]"
-          [attr.aria-label]="'Edit ' + trip().name"
-          [attr.aria-disabled]="busy()"
-          [class.disabled]="busy()"
-          >Edit trip</a
-        >
-        <button
-          class="btn btn-link delete-link"
-          [disabled]="busy()"
-          (click)="confirming.set(true)"
-          [attr.aria-label]="'Delete ' + trip().name"
-        >
-          Delete
-        </button>
-      } @else {
-        <div class="delete-confirm" role="alert">
-          <p>Delete {{ trip().name }}? This removes it from both sites.</p>
+    @if (isLoggedIn()) {
+      <div class="card-actions">
+        @if (!confirming()) {
+          <a
+            class="btn btn-primary"
+            [routerLink]="['/edit-trip', trip().code]"
+            [attr.aria-label]="'Edit ' + trip().name"
+            [attr.aria-disabled]="busy()"
+            [class.disabled]="busy()"
+            >Edit trip</a
+          >
           <button
-            class="btn btn-danger btn-sm"
+            class="btn btn-link delete-link"
             [disabled]="busy()"
-            (click)="deleteConfirmed.emit(trip().code)"
+            (click)="confirming.set(true)"
+            [attr.aria-label]="'Delete ' + trip().name"
           >
-            {{ busy() ? 'Deleting...' : 'Confirm delete' }}</button
-          ><button
-            class="btn btn-outline-secondary btn-sm ms-2"
-            [disabled]="busy()"
-            (click)="confirming.set(false)"
-          >
-            Cancel
+            Delete
           </button>
-        </div>
-      }
-    </div>
+        } @else {
+          <div class="delete-confirm" role="alert">
+            <p>Delete {{ trip().name }}? This removes it from both sites.</p>
+            <button
+              class="btn btn-danger btn-sm"
+              [disabled]="busy()"
+              (click)="deleteConfirmed.emit(trip().code)"
+            >
+              {{ busy() ? "Deleting..." : "Confirm delete" }}</button
+            ><button
+              class="btn btn-outline-secondary btn-sm ms-2"
+              [disabled]="busy()"
+              (click)="confirming.set(false)"
+            >
+              Cancel
+            </button>
+          </div>
+        }
+      </div>
+    }
   </div>
 </article>

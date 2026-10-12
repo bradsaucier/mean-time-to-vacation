@@ -447,3 +447,11 @@ h1 {
     flex-direction: column;
   }
 }
+.masthead nav .btn-link {
+  color: var(--sand-light);
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+.masthead nav .btn-link:hover {
+  color: var(--sunset);
+}

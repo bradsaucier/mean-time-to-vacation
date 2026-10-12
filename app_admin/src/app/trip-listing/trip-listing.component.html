@@ -6,7 +6,11 @@
       Good trips begin with the details. Keep every departure ready for discovery.
     </p>
   </div>
-  <a routerLink="/add-trip" class="btn btn-primary add-trip">Add a trip</a>
+  @if (isLoggedIn()) {
+    <a routerLink="/add-trip" class="btn btn-primary add-trip">Add a trip</a>
+  } @else {
+    <a routerLink="/login" class="btn btn-outline-primary add-trip">Log in to manage trips</a>
+  }
 </section>
 @if (notices.notice(); as notice) {
   <div class="alert save-notice" role="status">
@@ -48,7 +52,9 @@
   <div class="state-panel">
     <h2>Your next departure starts here.</h2>
     <p>No trips are on the manifest.</p>
-    <a routerLink="/add-trip" class="btn btn-primary">Add a trip</a>
+    @if (isLoggedIn()) {
+      <a routerLink="/add-trip" class="btn btn-primary">Add a trip</a>
+    }
   </div>
 } @else if (!visible().length && trips().length) {
   <p class="state-panel" role="status">No trips match your search. Try another name or level.</p>

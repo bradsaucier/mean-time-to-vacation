@@ -10,6 +10,8 @@ import { describeHttpError, TripDataService } from '../services/trip-data.servic
 
 import { TripNoticeService } from '../services/trip-notice.service';
 
+import { AuthenticationService } from '../services/authentication.service';
+
 @Component({
   selector: 'app-trip-listing',
   imports: [RouterLink, TripCardComponent],
@@ -18,6 +20,10 @@ import { TripNoticeService } from '../services/trip-notice.service';
 export class TripListingComponent implements OnInit, OnDestroy {
   private readonly data = inject(TripDataService);
   readonly notices = inject(TripNoticeService);
+  private readonly authenticationService = inject(AuthenticationService);
+  public isLoggedIn(): boolean {
+    return this.authenticationService.isLoggedIn();
+  }
   readonly trips = signal<Trip[]>([]);
   readonly loading = signal(true);
   readonly error = signal('');
